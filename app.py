@@ -280,7 +280,6 @@ def search_venues():
     return render_template('pages/search_venues.html', results=venues_response, search_term=request.form.get('search_term', ''))
 
 
-
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
     # shows the venue page with the given venue_id
@@ -364,8 +363,9 @@ def show_venue(venue_id):
     }
     venue_data = Venue.query.get(venue_id)
     if venue_data.genres[0] == '{':
-        venue_data.genres = venue_data.genres.split('{')[1].split('}')[0].split(',')
-        
+        venue_data.genres = venue_data.genres.split('{')[1].split('}')[
+            0].split(',')
+
     return render_template('pages/show_venue.html', venue=venue_data)
 
 #  Create Venue
@@ -381,13 +381,45 @@ def create_venue_form():
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
     # TODO: insert form data as a new Venue record in the db, instead
+    name = request.form.get('name', '')
+    city = request.form.get('city', '')
+    state = request.form.get('state', '')
+    address = request.form.get('address', '')
+    phone = request.form.get('phone', '')
+    genres = request.form.get('genres', '')
+    facebook_link = request.form.get('facebook_link', '')
+    image_link = request.form.get('image_link', '')
+    website_link = request.form.get('website_link', '')
+    if request.form.get('looking_for_talent', '') == '':
+        looking_for_talent = False
+    else:
+        looking_for_talent = True
+    seeking_description = request.form.get('seeking_description', '')
+    upcoming_shows = request.form.get('upcoming_shows', [])
+    past_shows = request.form.get('past_shows', [])
+    past_shows_count = request.form.get('past_shows_count', 0)
+    upcoming_shows_count = request.form.get('upcoming_shows_count', 0)
+
+    new_venue = Venue(name=name, city=city, state=state, address=address, phone=phone, genres=genres, facebook_link=facebook_link,
+                      image_link=image_link, looking_for_talent=looking_for_talent, seeking_description=seeking_description, upcoming_shows=upcoming_shows,
+                      past_shows=past_shows, past_shows_count=past_shows_count, website_link=website_link, upcoming_shows_count=upcoming_shows_count)
+
     # TODO: modify data to be the data object returned from db insertion
 
+    try:
+        db.session.add(new_venue)
+        db.session.commit()
     # on successful db insert, flash success
-    flash('Venue ' + request.form['name'] + ' was successfully listed!')
+        flash('Venue ' + request.form['name'] + ' was successfully listed!')
+    except:
+        db.session.rollback()
+        print('\n-------------\n')
+        print(sys.exc_info())
     # TODO: on unsuccessful db insert, flash an error instead.
     # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    finally:
+        db.session.close()
     return render_template('pages/home.html')
 
 
