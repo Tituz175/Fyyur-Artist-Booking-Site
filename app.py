@@ -362,9 +362,11 @@ def show_venue(venue_id):
         "past_shows_count": 1,
         "upcoming_shows_count": 1,
     }
-    data = list(filter(lambda d: d['id'] ==
-                venue_id, [data1, data2, data3]))[0]
-    return render_template('pages/show_venue.html', venue=data)
+    venue_data = Venue.query.get(venue_id)
+    if venue_data.genres[0] == '{':
+        venue_data.genres = venue_data.genres.split('{')[1].split('}')[0].split(',')
+        
+    return render_template('pages/show_venue.html', venue=venue_data)
 
 #  Create Venue
 #  ----------------------------------------------------------------
