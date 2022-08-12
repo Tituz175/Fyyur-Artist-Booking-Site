@@ -413,7 +413,6 @@ def create_venue_submission():
         flash('Venue ' + request.form['name'] + ' was successfully listed!')
     except:
         db.session.rollback()
-        print('\n-------------\n')
         print(sys.exc_info())
     # TODO: on unsuccessful db insert, flash an error instead.
     # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
@@ -423,19 +422,71 @@ def create_venue_submission():
     return render_template('pages/home.html')
 
 
+@app.route('/hola', methods=['POST'])
+def hola():
+    a = request.form['hola']
+    return a
+
+
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
     # TODO: Complete this endpoint for taking a venue_id, and using
-    # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
+    venue = Venue.query.get(venue_id)
+    print('received')
 
-    # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
-    # clicking that button delete it from the db then redirect the user to the homepage
-    return None
+    # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
+    try:
+        db.session.delete(venue)
+        flash(f'Venue with {venue_id} was successfully deleted!')
+        db.session.commit()
+    except:
+        print(sys.exc_info())
+        flash(f'An error occurred while deleting Venue with {venue_id}!')
+        db.session.rollback()
+    finally:
+        db.session.close()
+# BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
+# clicking that button delete it from the db then redirect the user to the homepage
+    return redirect(url_for('index'))
+
+
+@app.route('/region')
+def region():
+
+    new_data = []
+
+    return render_template('pages/artists.html', artists=new_data)
+
+
+@app.route('/region/search', methods=['POST'])
+def region_search():
+    results = []
+    results_list = []
+    item = request.form.get('search_term', '')
+    print('come on')
+    results.append(Artist.query.filter(Artist.city.ilike(f'%{item}%')).all())
+    results.append(Venue.query.filter(Venue.city.ilike(f'%{item}%')).all())
+
+    print(results)
+
+    for result in results:
+        for res in result:
+            results_list.append(res)
+    print(results_list)
+
+    response = {
+        "artist": False,
+        "count": len(results_list),
+        "data": results_list
+    }
+
+    print(results)
+
+    return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
+
 
 #  Artists
 #  ----------------------------------------------------------------
-
-
 @app.route('/artists')
 def artists():
     # TODO: replace with real data returned from querying the database
@@ -449,7 +500,9 @@ def artists():
         "id": 6,
         "name": "The Wild Sax Band",
     }]
-    return render_template('pages/artists.html', artists=data)
+    new_data = Artist.query.all()
+
+    return render_template('pages/artists.html', artists=new_data)
 
 
 @app.route('/artists/search', methods=['POST'])
@@ -465,7 +518,24 @@ def search_artists():
             "num_upcoming_shows": 0,
         }]
     }
-    return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
+
+    artists = []
+    item = request.form.get('search_term', '')
+    artists.append(Artist.query.filter(Artist.name.ilike(f'%{item}')).first())
+    artists.append(Artist.query.filter(Artist.name.ilike(f'%{item}%')).first())
+    artists.append(Artist.query.filter(Artist.name.ilike(f'{item}%')).first())
+
+    for artist in artists:
+        if artist == None:
+            artists.remove(artist)
+
+    artist_response = {
+        "artist": True,
+        "count": len(artists),
+        "data": artists
+    }
+
+    return render_template('pages/search_artists.html', results=artist_response, search_term=request.form.get('search_term', ''))
 
 
 @app.route('/artists/<int:artist_id>')
