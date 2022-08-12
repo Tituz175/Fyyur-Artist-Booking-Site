@@ -224,7 +224,23 @@ def venues():
       "num_upcoming_shows": 0,
     }]
   }]
-  return render_template('pages/venues.html', areas=data);
+
+  venues = Venue.query.all()
+  venue_data_list = []
+
+  for venue in venues:
+    venue_data_list.append({
+      "city": venue.city,
+      "state":venue.state,
+      "venues":[{
+        "id":venue.id,
+        "name":venue.name,
+        "num_upcoming_shows":venue.upcoming_shows_count
+      }]
+    })
+
+
+  return render_template('pages/venues.html', areas=venue_data_list);
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
