@@ -53,7 +53,7 @@ class Venue(db.Model):
     upcoming_shows_count = db.Column(db.Integer, default=0, nullable=True)
 
     def __repr__(self) -> str:
-        return f'id:{self.id} name:{self.name} city: {self.city}'
+        return f'id:{self.id} name:{self.name} genres: {self.genres} city: {self.city} state: {self.state}'
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -78,7 +78,7 @@ class Artist(db.Model):
     upcoming_shows_count = db.Column(db.Integer, default=0, nullable=True)
 
     def __repr__(self) -> str:
-        return f'id:{self.id} name:{self.name} city: {self.city}'
+        return f'id:{self.id} name:{self.name} genres: {self.genres} city: {self.city} state: {self.state}'
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -129,13 +129,10 @@ class Show(db.Model):
                     venue.past_shows = venueData
                     venue.past_shows_count = venueCurrentCount
                     db.session.commit()
-                    print('committed')
-                    # print(db.query.all())
                 except:
                     print(sys.exc_info)
                 finally:
                     db.session.close()
-                    print('ended')
 
             elif int(year) > int(datetime.today().year):
                 try:
@@ -151,10 +148,9 @@ class Show(db.Model):
                     venue.upcoming_shows_count = venueCurrentCount
                     db.session.commit()
                 except:
-                    print('there was an error--> ')
+                    pass
                 finally:
                     db.session.close()
-                    print('ended')
             else:
                 try:
                     artistData = list(artist.upcoming_shows)
@@ -169,10 +165,9 @@ class Show(db.Model):
                     venue.upcoming_shows_count = venueCurrentCount
                     db.session.commit()
                 except:
-                    print('there was an error--> ')
+                  pass
                 finally:
                     db.session.close()
-                    print('ended')
 
         else:
             return 'invalid ids'
@@ -432,7 +427,6 @@ def hola():
 def delete_venue(venue_id):
     # TODO: Complete this endpoint for taking a venue_id, and using
     venue = Venue.query.get(venue_id)
-    print('received')
 
     # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
     try:
@@ -463,16 +457,13 @@ def region_search():
     results = []
     results_list = []
     item = request.form.get('search_term', '')
-    print('come on')
     results.append(Artist.query.filter(Artist.city.ilike(f'%{item}%')).all())
     results.append(Venue.query.filter(Venue.city.ilike(f'%{item}%')).all())
 
-    print(results)
 
     for result in results:
         for res in result:
             results_list.append(res)
-    print(results_list)
 
     response = {
         "artist": False,
@@ -480,7 +471,6 @@ def region_search():
         "data": results_list
     }
 
-    print(results)
 
     return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
@@ -676,7 +666,6 @@ def edit_artist_submission(artist_id):
         flash('Artist ' + request.form['name'] + ' was successfully updated!')
     except:
         db.session.rollback()
-        print('---------\n')
         print(sys.exc_info())
         flash('Artist ' + request.form['name'] + ' could not be updated!')
     finally:
@@ -732,7 +721,6 @@ def edit_venue_submission(venue_id):
         flash('Venue ' + request.form['name'] + ' was successfully updated!')
     except:
         db.session.rollback()
-        print('---------\n')
         print(sys.exc_info())
         flash('Venue ' + request.form['name'] + ' could not be updated!')
     finally:
@@ -784,7 +772,6 @@ def create_artist_submission():
         flash('Artist ' + request.form['name'] + ' was successfully listed!')
     except:
         db.session.rollback()
-        print('\n-------------\n')
         print(sys.exc_info())
     # : on unsuccessful db insert, flash an error instead.
     # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
@@ -873,8 +860,6 @@ def create_show_submission():
     artist_id = request.form.get('artist_id', '')
     venue_id = request.form.get('venue_id', '')
     start_time = request.form.get('start_time')
-    print('ssssss===>\n')
-    print(start_time)
 
     show = Show(artist_id=artist_id, venue_id=venue_id, start_time=start_time)
 
