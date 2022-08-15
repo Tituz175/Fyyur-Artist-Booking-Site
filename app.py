@@ -1,26 +1,23 @@
 #----------------------------------------------------------------------------#
 # Imports
 #----------------------------------------------------------------------------#
-
-
 import json
-import dateutil.parser
 import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import logging
+import dateutil.parser
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 import sys
-from sqlalchemy import null
 from models import *
+
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
-
 app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
@@ -724,7 +721,11 @@ def create_show_submission():
     venue_id = request.form.get('venue_id', '')
     start_time = request.form.get('start_time')
 
+    # print(artist_id, venue_id, start_time)
+
+
     show = Show(artist_id=artist_id, venue_id=venue_id, start_time=start_time)
+    print(int(datetime.datetime.now().year))
 
     try:
         db.session.add(show)
@@ -736,6 +737,7 @@ def create_show_submission():
         #: on unsuccessful db insert, flash an error instead.
         # e.g., flash('An error occurred. Show could not be listed.')
         db.session.rollback()
+        print(sys.exc_info())
         flash('An error occurred. Show could not be listed.')
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     finally:

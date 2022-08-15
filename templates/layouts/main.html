@@ -75,6 +75,18 @@
                   aria-label="Search">
               </form>
               {% endif %}
+              {% if (request.endpoint == 'city') or
+                (request.endpoint == 'state') or
+                (request.endpoint == 'region') or
+                (request.endpoint == 'region_search') %}
+              <form class="search" method="post" action="/region/search">
+                <input class="form-control"
+                  type="search"
+                  name="search_term"
+                  placeholder="Find artists or venues by region"
+                  aria-label="Search">
+              </form>
+              {% endif %}
             </li>
           </ul>
           <ul class="nav navbar-nav">

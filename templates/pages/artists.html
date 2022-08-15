@@ -2,6 +2,7 @@
 {% block title %}Fyyur | Artists{% endblock %}
 {% block content %}
 <ul class="items">
+{% if artists %}
 	{% for artist in artists %}
 	<li>
 		<a href="/artists/{{ artist.id }}">
@@ -12,5 +13,12 @@
 		</a>
 	</li>
 	{% endfor %}
+{% else %}
+
+	<div class="item">
+		<h4>Search for a Venue or Artist by State or City</h4>
+	</div>
+
+{% endif %}
 </ul>
 {% endblock %}

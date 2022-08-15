@@ -1,6 +1,21 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import null
+import babel
+# import dateutil.parser
+import datetime
 
 db = SQLAlchemy()
+
+
+# def format_datetime(value, format='medium'):
+#     date = dateutil.parser.parse(value)
+#     if format == 'full':
+#         format = "EEEE MMMM, d, y 'at' h:mma"
+#     elif format == 'medium':
+#         format = "EE MM, dd, y h:mma"
+#     return babel.dates.format_datetime(date, format, locale='en')
+
+
 
 class Venue(db.Model):
     __tablename__ = 'Venue'
@@ -82,11 +97,15 @@ class Show(db.Model):
                 "start_time": self.start_time
             }
 
+            
+
             date = format_datetime(self.start_time)
             dateArray = date.split(',')
             year = dateArray[-1][:5]
+            
+            print(int(datetime.datetime.now().year))
 
-            if int(year) < int(datetime.today().year):
+            if int(year) < int(datetime.datetime.now().year):
                 try:
                     artistData = list(artist.past_shows)
                     venueData = list(venue.past_shows)
@@ -104,7 +123,7 @@ class Show(db.Model):
                 finally:
                     db.session.close()
 
-            elif int(year) > int(datetime.today().year):
+            elif int(year) > int(datetime.datetime.now().year):
                 try:
                     artistData = list(artist.upcoming_shows)
                     artistData.append(artistRecordVenue)
