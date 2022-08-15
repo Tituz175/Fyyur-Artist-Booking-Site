@@ -277,11 +277,6 @@ def create_venue_submission():
     return render_template('pages/home.html')
 
 
-@app.route('/hola', methods=['POST'])
-def hola():
-    a = request.form['hola']
-    return a
-
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
@@ -721,11 +716,8 @@ def create_show_submission():
     venue_id = request.form.get('venue_id', '')
     start_time = request.form.get('start_time')
 
-    # print(artist_id, venue_id, start_time)
-
 
     show = Show(artist_id=artist_id, venue_id=venue_id, start_time=start_time)
-    print(int(datetime.datetime.now().year))
 
     try:
         db.session.add(show)

@@ -97,8 +97,6 @@ class Show(db.Model):
                 "start_time": self.start_time
             }
 
-            
-
             date = format_datetime(self.start_time)
             dateArray = date.split(',')
             year = dateArray[-1][:5]
